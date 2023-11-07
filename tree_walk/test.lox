@@ -1,4 +1,7 @@
 var language = "lox";
 // Test comment
+/* This is a
+    /** NESTED */*
+test multiline comment */
 var cool = "yes";
 var num = 123.00

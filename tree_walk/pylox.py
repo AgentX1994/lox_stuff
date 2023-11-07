@@ -109,6 +109,15 @@ class Scanner:
     def is_at_end(self) -> bool:
         return self._current >= len(self._source)
 
+    def get_start(self) -> int:
+        return self._start
+
+    def get_current(self) -> int:
+        return self._current
+
+    def get_lines(self) -> int:
+        return self._line
+
     def tokens(self) -> Iterator[Token]:
         while not self.is_at_end():
             self._start = self._current
@@ -152,7 +161,7 @@ class Scanner:
             self._advance()
         
         if self.is_at_end():
-            error(self._line, "Unterminated string")
+            error(self._line, 'Unterminated string')
             return None
         
         self._advance()
@@ -228,6 +237,28 @@ class Scanner:
                 while (self._peek() != '\n' and not self.is_at_end()):
                     self._advance()
                 return None
+            elif self._match('*'):
+                # multiline comment
+                num_levels = 1
+                while num_levels > 0:
+                    if self.is_at_end():
+                        error(self._line, 'Unterminated multiline comment')
+                        return None
+                    if self._peek() == '*' and self._peek_next() == '/':
+                        # End of comment
+                        self._advance()
+                        self._advance()
+                        num_levels -= 1
+                    elif self._peek() == '/' and self._peek_next() == '*':
+                        # Nested comment
+                        self._advance()
+                        self._advance()
+                        num_levels += 1
+                    else:
+                        if self._peek() == '\n':
+                            self._line += 1
+                        self._advance()
+                return None
             else:
                 return self._make_token(TokenType.SLASH)
         if c in [' ', '\r', '\t']:
@@ -253,6 +284,11 @@ class PyLoxInterpreter:
         tokens = scanner.tokens()
         for token in tokens:
             print(token)
+        print('Debug Stats:')
+        print(f'\tTotal Length: {len(source)}')
+        print(f'\tFinal start value: {scanner.get_start()}')
+        print(f'\tFinal current value: {scanner.get_current()}')
+        print(f'\tTotal Lines: {scanner.get_lines()}')
 
     def run_file(self, script: str) -> bool:
         with open(script, 'r', encoding='utf-8') as script_fh:
