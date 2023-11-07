@@ -1,0 +1,4 @@
+var language = "lox";
+// Test comment
+var cool = "yes";
+var num = 123.00
