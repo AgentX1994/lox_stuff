@@ -1,20 +1,8 @@
-import argparse
 from dataclasses import dataclass
 from enum import auto, StrEnum
-import sys
 from typing import Any, Iterator, Optional
 
-# TODO: Better error reporting
-had_error = False
-
-def error(line: int, message: str) -> None:
-    # TODO: improve error reporting
-    report(line, '', message)
-
-def report(line: int, where: str, message: str) -> None:
-    global had_error
-    print(f'[line {line}] Error{where}: {message}', file=sys.stderr)
-    had_error = True
+from .error import error
 
 class TokenType(StrEnum):
     # Single Character Tokens
@@ -273,46 +261,3 @@ class Scanner:
         if is_valid_identifier_start(c):
             return self._identifier()
         error(self._line, f'Unexpected character: {c}')
-        
-
-class PyLoxInterpreter:
-    def __init__(self) -> None:
-        ...
-
-    def run(self, source: str) -> None:
-        scanner = Scanner(source)
-        tokens = scanner.tokens()
-        for token in tokens:
-            print(token)
-        print('Debug Stats:')
-        print(f'\tTotal Length: {len(source)}')
-        print(f'\tFinal start value: {scanner.get_start()}')
-        print(f'\tFinal current value: {scanner.get_current()}')
-        print(f'\tTotal Lines: {scanner.get_lines()}')
-
-    def run_file(self, script: str) -> bool:
-        with open(script, 'r', encoding='utf-8') as script_fh:
-            source = script_fh.read()
-        self.run(source)
-        return not had_error
-
-    def run_prompt(self) -> None:
-        global had_error
-        while True:
-            # TODO: Do this better
-            line = input('> ')
-            if not line: break
-            self.run(line)
-            had_error = False
-
-def main():
-    arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument('script')
-    args = arg_parser.parse_args()
-    interpreter = PyLoxInterpreter()
-    interpreter.run_file(args.script)
-    if had_error:
-        print('Errors found.')
-
-if __name__ == '__main__':
-    main()
