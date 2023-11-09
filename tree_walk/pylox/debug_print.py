@@ -1,5 +1,6 @@
 
 from .asts import BinaryExpression, Expression, GroupingExpression, LiteralExpression, UnaryExpression, Visitor
+from .scanner import TokenType
 
 class DebugAstPrinter(Visitor[str]):
     def print(self, expression: Expression) -> str:
@@ -34,7 +35,10 @@ class DebugRpnPrinter(Visitor[str]):
         return f'{left_str} {right_str} {expression.operator.lexeme}'
     
     def visit_unary(self, expression: UnaryExpression) -> str:
-        right_str = expression.right.accept(self)
+        if expression.operator.typ == TokenType.MINUS:
+            right_str = '~'
+        else:
+            right_str = expression.right.accept(self)
         return f'{right_str} {expression.operator.lexeme}'
 
     def visit_literal(self, expression: LiteralExpression) -> str:
