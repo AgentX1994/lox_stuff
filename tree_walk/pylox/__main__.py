@@ -10,7 +10,7 @@ from .scanner import Token, TokenType
 
 def main():
     arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument('script')
+    arg_parser.add_argument('script', nargs='?', default=None)
     arg_parser.add_argument('--debug-expression', action='store_true')
     arg_parser.add_argument('--debug-rpn', action='store_true')
     args = arg_parser.parse_args()
@@ -39,11 +39,14 @@ def main():
             )
         )
         print(DebugRpnPrinter().print(expression))
-    else:
+    elif args.script is not None:
         interpreter = PyLoxInterpreter()
         interpreter.run_file(args.script)
         if had_error:
             print('Errors found.')
+    else:
+        interpreter = PyLoxInterpreter()
+        interpreter.run_prompt()
 
 if __name__ == '__main__':
     main()
